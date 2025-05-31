@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "../contexts/AuthContext";
 
 interface NavigationProps {
   activeTab: string;
@@ -8,6 +9,8 @@ interface NavigationProps {
 }
 
 const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
+  const { user, logout } = useAuth();
+
   return (
     <nav className="bg-white shadow-md border-b border-green-200">
       <div className="container mx-auto px-4">
@@ -19,7 +22,7 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
             </Badge>
           </div>
           
-          <div className="flex space-x-4">
+          <div className="flex items-center space-x-4">
             <Button
               variant={activeTab === 'zones' ? 'default' : 'outline'}
               onClick={() => setActiveTab('zones')}
@@ -34,6 +37,25 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
             >
               จัดการการจอง
             </Button>
+            <Button
+              variant={activeTab === 'settings' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('settings')}
+              className={activeTab === 'settings' ? 'bg-green-600 hover:bg-green-700' : 'border-green-600 text-green-600 hover:bg-green-50'}
+            >
+              ตั้งค่าระบบ
+            </Button>
+            
+            <div className="flex items-center space-x-2 border-l pl-4">
+              <span className="text-sm text-gray-600">สวัสดี, {user?.username}</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={logout}
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
+                ออกจากระบบ
+              </Button>
+            </div>
           </div>
         </div>
       </div>
