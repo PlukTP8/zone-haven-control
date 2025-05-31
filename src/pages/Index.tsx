@@ -1,12 +1,19 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import Navigation from '../components/Navigation';
+import CampingZoneManagement from '../components/CampingZoneManagement';
+import ReservationManagement from '../components/ReservationManagement';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('zones');
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-green-50">
+      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="container mx-auto px-4 py-8">
+        {activeTab === 'zones' && <CampingZoneManagement />}
+        {activeTab === 'reservations' && <ReservationManagement />}
+      </main>
     </div>
   );
 };
