@@ -9,6 +9,26 @@ export interface CampingZone {
   images: string[];
   isActive: boolean;
   createdAt: string;
+  tentSpots: TentSpot[];
+}
+
+export interface TentSpot {
+  id: string;
+  name: string;
+  size: TentSize;
+  capacity: number;
+  pricePerNight: number;
+  isActive: boolean;
+  position?: { x: number; y: number }; // For future map positioning
+}
+
+export interface TentSize {
+  id: string;
+  name: string;
+  displayName: string;
+  minCapacity: number;
+  maxCapacity: number;
+  basePrice: number;
 }
 
 export interface Reservation {
@@ -25,6 +45,7 @@ export interface Reservation {
   customerPhone: string;
   customerEmail: string;
   createdAt: string;
+  tentSpotId?: string;
 }
 
 export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled';

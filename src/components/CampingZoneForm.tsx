@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { CampingZone } from '../types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CampingZone, TentSpot } from '../types';
+import { tentSizes } from '../data/mockData';
+import TentSpotManagement from './TentSpotManagement';
 
 interface CampingZoneFormProps {
   zone: CampingZone | null;
@@ -27,7 +29,8 @@ const CampingZoneForm = ({ zone, onSave, onCancel }: CampingZoneFormProps) => {
     capacity: 1,
     pricePerNight: 0,
     amenities: [] as string[],
-    images: [] as string[]
+    images: [] as string[],
+    tentSpots: [] as TentSpot[]
   });
 
   const [newImageUrl, setNewImageUrl] = useState('');
@@ -40,7 +43,8 @@ const CampingZoneForm = ({ zone, onSave, onCancel }: CampingZoneFormProps) => {
         capacity: zone.capacity,
         pricePerNight: zone.pricePerNight,
         amenities: [...zone.amenities],
-        images: [...zone.images]
+        images: [...zone.images],
+        tentSpots: zone.tentSpots ? [...zone.tentSpots] : []
       });
     }
   }, [zone]);
@@ -95,8 +99,12 @@ const CampingZoneForm = ({ zone, onSave, onCancel }: CampingZoneFormProps) => {
     setFormData(prev => ({ ...prev, images: newImages }));
   };
 
+  const handleTentSpotsChange = (spots: TentSpot[]) => {
+    setFormData(prev => ({ ...prev, tentSpots: spots }));
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl text-green-800">
@@ -105,77 +113,95 @@ const CampingZoneForm = ({ zone, onSave, onCancel }: CampingZoneFormProps) => {
         </CardHeader>
         
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">ชื่อโซน *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="เช่น ริมธาร"
-                    required
-                  />
-                </div>
+          <Tabs defaultValue="basic" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="basic">ข้อมูลพื้นฐาน</TabsTrigger>
+              <TabsTrigger value="images">รูปภาพ</TabsTrigger>
+              <TabsTrigger value="spots">จุดกางเต๊นท์</TabsTrigger>
+            </TabsList>
 
-                <div>
-                  <Label htmlFor="capacity">ความจุ (คน) *</Label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    min="1"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) || 1 }))}
-                    required
-                  />
-                </div>
+            <TabsContent value="basic">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="name">ชื่อโซน *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="เช่น ริมธาร"
+                        required
+                      />
+                    </div>
 
-                <div>
-                  <Label htmlFor="price">ราคาต่อคืน (บาท) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    value={formData.pricePerNight}
-                    onChange={(e) => setFormData(prev => ({ ...prev, pricePerNight: parseInt(e.target.value) || 0 }))}
-                    required
-                  />
-                </div>
-              </div>
+                    <div>
+                      <Label htmlFor="capacity">ความจุรวม (คน) *</Label>
+                      <Input
+                        id="capacity"
+                        type="number"
+                        min="1"
+                        value={formData.capacity}
+                        onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) || 1 }))}
+                        required
+                      />
+                    </div>
 
-              <div>
-                <Label htmlFor="description">รายละเอียดโซน</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="อธิบายลักษณะของโซน บรรยากาศ และสิ่งที่น่าสนใจ"
-                  rows={6}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>สิ่งอำนวยความสะดวก</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                {availableAmenities.map((amenity) => (
-                  <div key={amenity} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={amenity}
-                      checked={formData.amenities.includes(amenity)}
-                      onCheckedChange={(checked) => handleAmenityChange(amenity, checked as boolean)}
-                    />
-                    <Label htmlFor={amenity} className="text-sm cursor-pointer">
-                      {amenity}
-                    </Label>
+                    <div>
+                      <Label htmlFor="price">ราคาพื้นฐานต่อคืน (บาท) *</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        value={formData.pricePerNight}
+                        onChange={(e) => setFormData(prev => ({ ...prev, pricePerNight: parseInt(e.target.value) || 0 }))}
+                        required
+                      />
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            <div>
-              <Label>รูปภาพโซน</Label>
+                  <div>
+                    <Label htmlFor="description">รายละเอียดโซน</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="อธิบายลักษณะของโซน บรรยากาศ และสิ่งที่น่าสนใจ"
+                      rows={6}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>สิ่งอำนวยความสะดวก</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                    {availableAmenities.map((amenity) => (
+                      <div key={amenity} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={amenity}
+                          checked={formData.amenities.includes(amenity)}
+                          onCheckedChange={(checked) => handleAmenityChange(amenity, checked as boolean)}
+                        />
+                        <Label htmlFor={amenity} className="text-sm cursor-pointer">
+                          {amenity}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex space-x-4 pt-6">
+                  <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                    {zone ? 'บันทึกการแก้ไข' : 'เพิ่มโซน'}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={onCancel}>
+                    ยกเลิก
+                  </Button>
+                </div>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="images">
               <div className="space-y-4">
                 <div className="flex space-x-2">
                   <Input
@@ -239,17 +265,16 @@ const CampingZoneForm = ({ zone, onSave, onCancel }: CampingZoneFormProps) => {
                   </div>
                 )}
               </div>
-            </div>
+            </TabsContent>
 
-            <div className="flex space-x-4 pt-6">
-              <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                {zone ? 'บันทึกการแก้ไข' : 'เพิ่มโซน'}
-              </Button>
-              <Button type="button" variant="outline" onClick={onCancel}>
-                ยกเลิก
-              </Button>
-            </div>
-          </form>
+            <TabsContent value="spots">
+              <TentSpotManagement
+                spots={formData.tentSpots}
+                tentSizes={tentSizes}
+                onSpotsChange={handleTentSpotsChange}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
